@@ -28,6 +28,9 @@ dependencies:
   path_provider: ^2.1.5
   intl: ^0.20.2
 
+  # Share Intent (receive links from other apps)
+  receive_sharing_intent: ^1.8.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
