@@ -46,22 +46,42 @@ class ShareIntentService {
       final text = file.path.trim();
       if (text.isEmpty) continue;
 
-      // The shared text might contain a URL directly
-      if (UrlUtils.isValidUrl(text)) {
-        return text;
+      // The shared text might be a URL directly
+      final directUrl = _cleanUrl(text);
+      if (directUrl != null && UrlUtils.isValidUrl(directUrl)) {
+        return directUrl;
       }
 
-      // Or it might contain text with a URL embedded — try to extract it
+      // Or it might be text with a URL embedded — extract the first URL
       final urlMatch = RegExp(
         r'https?://[^\s]+',
         caseSensitive: false,
       ).firstMatch(text);
+
       if (urlMatch != null) {
-        return urlMatch.group(0);
+        final extracted = _cleanUrl(urlMatch.group(0)!);
+        if (extracted != null && UrlUtils.isValidUrl(extracted)) {
+          return extracted;
+        }
       }
     }
     return null;
   }
+
+  /// Strips trailing punctuation that isn't part of a URL and validates it.
+  /// Returns the cleaned URL string, or null if it's not a valid URL.
+  String? _cleanUrl(String raw) {
+    // Strip common trailing punctuation that apps append after URLs
+    String cleaned = raw.trim().replaceAll(RegExp('[.,;:!?()\\[\\]{}"\' ]+\$'), '');
+
+    // Validate that it parses as a proper URI with host
+    final uri = Uri.tryParse(cleaned);
+    if (uri != null && uri.hasScheme && uri.hasAuthority) {
+      return cleaned;
+    }
+    return null;
+  }
+
 
   /// Cleans up resources.
   void dispose() {
