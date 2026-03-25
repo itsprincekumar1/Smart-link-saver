@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../data/models/link_model.dart';
+import '../../providers/providers.dart';
 
 /// A list tile widget for displaying a saved link.
-class LinkTile extends StatelessWidget {
+class LinkTile extends ConsumerWidget {
   final LinkModel link;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
@@ -21,7 +23,7 @@ class LinkTile extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
 
     return Dismissible(
@@ -133,6 +135,53 @@ class LinkTile extends StatelessWidget {
                               ),
                             ),
                           ),
+                          const SizedBox(width: 8),
+                          // Folder / Unsaved Tag
+                          Builder(builder: (context) {
+                            String tagLabel = 'Unsaved';
+                            Color tagColor = colors.error;
+                            Color tagBg = colors.errorContainer.withValues(alpha: 0.5);
+
+                            if (link.folderId != null) {
+                              final allFolderEntries = ref.watch(allFoldersProvider);
+                              final found = allFolderEntries.where((entry) => entry.folder.id == link.folderId);
+                              if (found.isNotEmpty) {
+                                tagLabel = found.first.folder.name;
+                                tagColor = colors.primary;
+                                tagBg = colors.primaryContainer.withValues(alpha: 0.5);
+                              }
+                            }
+
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: tagBg,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    link.folderId == null ? Icons.error_outline_rounded : Icons.folder_rounded,
+                                    size: 10,
+                                    color: tagColor,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    tagLabel,
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                      color: tagColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
                           const SizedBox(width: 8),
                           Text(
                             _formatDate(link.createdAt),

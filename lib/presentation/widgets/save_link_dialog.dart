@@ -215,22 +215,34 @@ class _SaveLinkDialogState extends ConsumerState<SaveLinkDialog> {
       }
 
       // Create the link
-      final note = _noteController.text.trim().isEmpty
-          ? UrlUtils.generateAutoNote(widget.url)
-          : _noteController.text.trim();
+      final linkRepo = ref.read(linkRepositoryProvider);
+      final existing = linkRepo.findByUrl(widget.url);
 
-      final link = LinkModel(
-        id: const Uuid().v4(),
-        url: widget.url,
-        note: note,
-        category: _category.category,
-        domain: _domain,
-        folderId: folderId,
-        createdAt: DateTime.now(),
-        subCategory: _category.subCategory,
-      );
-
-      await linkNotifier.addLink(link);
+      if (existing != null) {
+        // It was auto-saved as history, upgrade to a fully saved item
+        final updated = existing.copyWith(
+          note: _noteController.text.trim(),
+          category: _category.category,
+          subCategory: _category.subCategory,
+          folderId: folderId,
+          isFromHistory: false,
+        );
+        linkNotifier.updateLink(updated);
+      } else {
+        // Create new link
+        final newLink = LinkModel(
+          id: const Uuid().v4(),
+          url: widget.url,
+          note: _noteController.text.trim(),
+          category: _category.category,
+          domain: _domain,
+          folderId: folderId,
+          createdAt: DateTime.now(),
+          subCategory: _category.subCategory,
+          isFromHistory: false,
+        );
+        linkNotifier.addLink(newLink);
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -12,7 +12,7 @@ class HistoryScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final historyLinks = ref.watch(historyLinksProvider);
+    final historyLinks = ref.watch(allLinksChronologicalProvider);
     final colors = Theme.of(context).colorScheme;
 
     return Scaffold(
@@ -77,8 +77,8 @@ class HistoryScreen extends ConsumerWidget {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Clear History'),
-        content: const Text('Delete all history links?'),
+        title: const Text('Clear Unsaved History'),
+        content: const Text('Delete all unsaved links? Foldered links will be kept safe.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),

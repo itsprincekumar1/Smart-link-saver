@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 import '../../core/utils/categorizer.dart';
 import '../../core/utils/url_utils.dart';
+import '../../data/models/link_model.dart';
 import '../../providers/providers.dart';
 import '../../services/clipboard_service.dart';
 import '../widgets/folder_card.dart';
@@ -74,6 +76,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     if (linkNotifier.isDuplicate(url)) return;
 
     final category = LinkCategorizer.categorize(url);
+    
+    // Auto-save silently to history so it isn't lost if the user dismisses the popup
+    final newHistoryLink = LinkModel(
+      id: const Uuid().v4(),
+      url: url,
+      note: UrlUtils.generateAutoNote(url),
+      category: category.category,
+      domain: UrlUtils.extractDomain(url),
+      createdAt: DateTime.now(),
+      isFromHistory: true,
+      subCategory: category.subCategory,
+    );
+    linkNotifier.addLink(newHistoryLink);
+
     setState(() {
       _popupUrl = url;
       _popupCategory = category.category;

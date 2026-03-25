@@ -153,10 +153,18 @@ class LinkListNotifier extends StateNotifier<List<LinkModel>> {
   LinkModel? findByUrl(String url) => _repo.findByUrl(url);
 }
 
+/// Provider for all links across the app.
 final linkListProvider =
     StateNotifierProvider<LinkListNotifier, List<LinkModel>>((ref) {
   final repo = ref.watch(linkRepositoryProvider);
   return LinkListNotifier(repo);
+});
+
+/// Provider for a chronological list of ALL links (saved and unsaved).
+final allLinksChronologicalProvider = Provider<List<LinkModel>>((ref) {
+  ref.watch(linkListProvider); // Reactive
+  final repo = ref.watch(linkRepositoryProvider);
+  return repo.getAllLinks();
 });
 
 /// Provider for links in a specific folder.
