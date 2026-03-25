@@ -13,6 +13,7 @@ import 'folder_detail_screen.dart';
 import 'history_screen.dart';
 import 'search_results_screen.dart';
 import 'settings_screen.dart';
+import '../../services/folder_share_service.dart';
 
 /// The main home screen of Smart Link Keeper.
 class HomeScreen extends ConsumerStatefulWidget {
@@ -325,6 +326,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       builder: (ctx) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          ListTile(
+            leading: const Icon(Icons.share_rounded),
+            title: const Text('Share Folder'),
+            onTap: () {
+              Navigator.pop(ctx);
+              FolderShareService.shareFolder(folder, ref);
+            },
+          ),
           ListTile(
             leading: const Icon(Icons.edit_rounded),
             title: const Text('Rename'),

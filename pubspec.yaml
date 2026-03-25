@@ -30,6 +30,8 @@ dependencies:
 
   # Share Intent (receive links from other apps)
   receive_sharing_intent: ^1.8.1
+  http: ^1.6.0
+  html: ^0.15.6
 
 dev_dependencies:
   flutter_test:

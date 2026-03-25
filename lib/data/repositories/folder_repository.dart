@@ -23,6 +23,11 @@ class FolderRepository {
     return folders;
   }
 
+  /// Returns every folder (root + subfolders), unfiltered.
+  List<FolderModel> getAllFoldersIncludingSubfolders() {
+    return _box.values.toList();
+  }
+
   /// Returns subfolders of a given parent folder.
   List<FolderModel> getSubfolders(String parentId) {
     final folders = _box.values

@@ -32,6 +32,9 @@ class LinkModel extends HiveObject {
   @HiveField(8)
   final String subCategory;
 
+  @HiveField(9)
+  String? imageUrl;
+
   LinkModel({
     required this.id,
     required this.url,
@@ -42,6 +45,7 @@ class LinkModel extends HiveObject {
     required this.createdAt,
     this.isFromHistory = false,
     this.subCategory = '',
+    this.imageUrl,
   });
 
   /// Creates a copy with optional field overrides.
@@ -55,6 +59,7 @@ class LinkModel extends HiveObject {
     DateTime? createdAt,
     bool? isFromHistory,
     String? subCategory,
+    String? imageUrl,
   }) {
     return LinkModel(
       id: id ?? this.id,
@@ -66,6 +71,7 @@ class LinkModel extends HiveObject {
       createdAt: createdAt ?? this.createdAt,
       isFromHistory: isFromHistory ?? this.isFromHistory,
       subCategory: subCategory ?? this.subCategory,
+      imageUrl: imageUrl ?? this.imageUrl,
     );
   }
 
@@ -80,6 +86,7 @@ class LinkModel extends HiveObject {
         'createdAt': createdAt.toIso8601String(),
         'isFromHistory': isFromHistory,
         'subCategory': subCategory,
+        'imageUrl': imageUrl,
       };
 
   /// Deserializes from JSON map.
@@ -93,5 +100,6 @@ class LinkModel extends HiveObject {
         createdAt: DateTime.parse(json['createdAt'] as String),
         isFromHistory: json['isFromHistory'] as bool? ?? false,
         subCategory: json['subCategory'] as String? ?? '',
+        imageUrl: json['imageUrl'] as String?,
       );
 }

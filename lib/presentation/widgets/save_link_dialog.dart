@@ -43,7 +43,7 @@ class _SaveLinkDialogState extends ConsumerState<SaveLinkDialog> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final folders = ref.watch(folderListProvider);
+    final allFolderEntries = ref.watch(allFoldersProvider);
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -132,9 +132,9 @@ class _SaveLinkDialogState extends ConsumerState<SaveLinkDialog> {
                 value: '_auto_',
                 child: Text('Auto-create folder'),
               ),
-              ...folders.map((f) => DropdownMenuItem(
-                    value: f.id,
-                    child: Text(f.name),
+              ...allFolderEntries.map((entry) => DropdownMenuItem(
+                    value: entry.folder.id,
+                    child: Text('${'  ' * entry.depth}${entry.folder.name}'),
                   )),
             ],
             onChanged: (value) {

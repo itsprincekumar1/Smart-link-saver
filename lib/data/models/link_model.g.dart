@@ -26,13 +26,14 @@ class LinkModelAdapter extends TypeAdapter<LinkModel> {
       createdAt: fields[6] as DateTime,
       isFromHistory: fields[7] as bool,
       subCategory: fields[8] as String,
+      imageUrl: fields[9] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, LinkModel obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -50,7 +51,9 @@ class LinkModelAdapter extends TypeAdapter<LinkModel> {
       ..writeByte(7)
       ..write(obj.isFromHistory)
       ..writeByte(8)
-      ..write(obj.subCategory);
+      ..write(obj.subCategory)
+      ..writeByte(9)
+      ..write(obj.imageUrl);
   }
 
   @override

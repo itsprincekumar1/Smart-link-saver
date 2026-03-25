@@ -4,6 +4,7 @@ import '../data/models/folder_model.dart';
 import '../data/repositories/link_repository.dart';
 import '../data/repositories/folder_repository.dart';
 import '../core/utils/search_utils.dart';
+import '../services/metadata_service.dart';
 
 // ─── Repository Providers ────────────────────────────────────────────────────
 
@@ -80,6 +81,33 @@ final subfoldersProvider = Provider.family<List<FolderModel>, String>((ref, pare
   return repo.getSubfolders(parentId);
 });
 
+/// A flat, hierarchically-ordered list of ALL folders (root + subfolders).
+/// Each entry pairs a [FolderModel] with its indentation [depth] (0 = root).
+/// Use this for any folder picker that should show the full folder tree.
+final allFoldersProvider =
+    Provider<List<({FolderModel folder, int depth})>>((ref) {
+  // Re-read when folder list changes
+  ref.watch(folderListProvider);
+  final repo = ref.watch(folderRepositoryProvider);
+  final all = repo.getAllFoldersIncludingSubfolders();
+
+  final result = <({FolderModel folder, int depth})>[];
+
+  void addWithChildren(List<FolderModel> folders, int depth) {
+    for (final f in folders) {
+      result.add((folder: f, depth: depth));
+      final children = all.where((c) => c.parentId == f.id).toList()
+        ..sort((a, b) => a.name.compareTo(b.name));
+      addWithChildren(children, depth + 1);
+    }
+  }
+
+  final roots = all.where((f) => f.parentId == null).toList()
+    ..sort((a, b) => a.name.compareTo(b.name));
+  addWithChildren(roots, 0);
+  return result;
+});
+
 // ─── Link Providers ──────────────────────────────────────────────────────────
 
 /// Notifier that manages links for the whole app.
@@ -97,6 +125,17 @@ class LinkListNotifier extends StateNotifier<List<LinkModel>> {
   Future<void> addLink(LinkModel link) async {
     await _repo.addLink(link);
     refresh();
+    _fetchAndSaveImage(link);
+  }
+
+  Future<void> _fetchAndSaveImage(LinkModel link) async {
+    try {
+      final imageUrl = await MetadataService.fetchImageUrl(link.url);
+      if (imageUrl != null && imageUrl.isNotEmpty) {
+        final updatedLink = link.copyWith(imageUrl: imageUrl);
+        await updateLink(updatedLink);
+      }
+    } catch (_) {}
   }
 
   Future<void> updateLink(LinkModel link) async {

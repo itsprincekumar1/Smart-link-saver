@@ -5,6 +5,7 @@ import '../../data/models/link_model.dart';
 import '../../providers/providers.dart';
 import '../widgets/link_tile.dart';
 import '../widgets/create_folder_dialog.dart';
+import '../../services/folder_share_service.dart';
 
 /// Screen showing all links inside a specific folder.
 class FolderDetailScreen extends ConsumerWidget {
@@ -32,6 +33,8 @@ class FolderDetailScreen extends ConsumerWidget {
           PopupMenuButton<String>(
             onSelected: (value) {
               switch (value) {
+                case 'share':
+                  FolderShareService.shareFolder(folder, ref);
                 case 'rename':
                   _renameFolder(context, ref);
                 case 'delete':
@@ -39,6 +42,7 @@ class FolderDetailScreen extends ConsumerWidget {
               }
             },
             itemBuilder: (_) => [
+              const PopupMenuItem(value: 'share', child: Text('Share Folder')),
               const PopupMenuItem(value: 'rename', child: Text('Rename')),
               const PopupMenuItem(value: 'delete', child: Text('Delete Folder')),
             ],
@@ -212,7 +216,7 @@ class FolderDetailScreen extends ConsumerWidget {
     WidgetRef ref,
     LinkModel link,
   ) async {
-    final folders = ref.read(folderListProvider);
+    final allEntries = ref.read(allFoldersProvider);
     final selectedFolderId = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -221,14 +225,19 @@ class FolderDetailScreen extends ConsumerWidget {
           width: double.maxFinite,
           child: ListView.builder(
             shrinkWrap: true,
-            itemCount: folders.length,
+            itemCount: allEntries.length,
             itemBuilder: (_, index) {
-              final f = folders[index];
+              final (:folder, :depth) = allEntries[index];
+              final prefix = '  ' * depth;
               return ListTile(
-                leading: const Icon(Icons.folder_rounded),
-                title: Text(f.name),
-                selected: f.id == link.folderId,
-                onTap: () => Navigator.pop(ctx, f.id),
+                leading: Icon(
+                  depth == 0
+                      ? Icons.folder_rounded
+                      : Icons.subdirectory_arrow_right_rounded,
+                ),
+                title: Text('$prefix${folder.name}'),
+                selected: folder.id == link.folderId,
+                onTap: () => Navigator.pop(ctx, folder.id),
               );
             },
           ),

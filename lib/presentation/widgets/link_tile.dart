@@ -66,25 +66,21 @@ class LinkTile extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Domain icon
-                Container(
-                  width: 42,
-                  height: 42,
-                  decoration: BoxDecoration(
-                    color: colors.primaryContainer.withValues(alpha: 0.5),
+                // Link Preview / Domain icon
+                if (link.imageUrl != null && link.imageUrl!.isNotEmpty)
+                  ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Center(
-                    child: Text(
-                      _getInitials(link.domain),
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: colors.primary,
-                      ),
+                    child: Image.network(
+                      link.imageUrl!,
+                      width: 52,
+                      height: 52,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          _buildFallbackInitial(colors),
                     ),
-                  ),
-                ),
+                  )
+                else
+                  _buildFallbackInitial(colors),
                 const SizedBox(width: 12),
 
                 // Link details
@@ -177,6 +173,27 @@ class LinkTile extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFallbackInitial(ColorScheme colors) {
+    return Container(
+      width: 52,
+      height: 52,
+      decoration: BoxDecoration(
+        color: colors.primaryContainer.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Center(
+        child: Text(
+          _getInitials(link.domain),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: colors.primary,
           ),
         ),
       ),
