@@ -405,7 +405,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         return;
       }
 
-      if (!UrlUtils.isValidUrl(content)) {
+      final extractedUrl = UrlUtils.extractFirstValidUrl(content);
+      if (extractedUrl == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Clipboard does not contain a valid URL')),
@@ -414,7 +415,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         return;
       }
 
-      _showSaveLinkSheet(content);
+      _clipboardService.setLastContent(content);
+      _showSaveLinkSheet(extractedUrl);
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -427,7 +429,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   /// Shows the save link bottom sheet.
   void _showSaveLinkSheet(String url) {
     _dismissPopup();
-    _clipboardService.setLastContent(url);
 
     showModalBottomSheet(
       context: context,

@@ -72,8 +72,8 @@ class LinkTile extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                     child: Image.network(
                       link.imageUrl!,
-                      width: 52,
-                      height: 52,
+                      width: 75,
+                      height: 75,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) =>
                           _buildFallbackInitial(colors),
@@ -181,8 +181,8 @@ class LinkTile extends StatelessWidget {
 
   Widget _buildFallbackInitial(ColorScheme colors) {
     return Container(
-      width: 52,
-      height: 52,
+      width: 75,
+      height: 75,
       decoration: BoxDecoration(
         color: colors.primaryContainer.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(10),
@@ -191,7 +191,7 @@ class LinkTile extends StatelessWidget {
         child: Text(
           _getInitials(link.domain),
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 24,
             fontWeight: FontWeight.w700,
             color: colors.primary,
           ),

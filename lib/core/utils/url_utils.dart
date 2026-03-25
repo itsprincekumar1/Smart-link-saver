@@ -14,6 +14,37 @@ class UrlUtils {
     caseSensitive: false,
   );
 
+  /// Extracts the first valid URL from a string that might contain other text.
+  static String? extractFirstValidUrl(String text) {
+    if (text.trim().isEmpty) return null;
+
+    // Check if the whole string is a URL (after cleaning)
+    final directUrl = _cleanUrl(text);
+    if (directUrl != null && isValidUrl(directUrl)) {
+      return directUrl;
+    }
+
+    // Extract the first URL embedded within the text
+    final urlMatch = _urlRegex.firstMatch(text);
+    if (urlMatch != null) {
+      final extracted = _cleanUrl(urlMatch.group(0)!);
+      if (extracted != null && isValidUrl(extracted)) {
+        return extracted;
+      }
+    }
+    return null;
+  }
+
+  /// Strips trailing punctuation that isn't part of a URL and validates it.
+  static String? _cleanUrl(String raw) {
+    String cleaned = raw.trim().replaceAll(RegExp(r'[.,;:!?()\[\]{}"' "'" r' ]+$'), '');
+    final uri = Uri.tryParse(cleaned);
+    if (uri != null && uri.hasScheme && uri.hasAuthority) {
+      return cleaned;
+    }
+    return null;
+  }
+
   /// Checks if the given [text] is a valid URL.
   static bool isValidUrl(String? text) {
     if (text == null || text.trim().isEmpty) return false;

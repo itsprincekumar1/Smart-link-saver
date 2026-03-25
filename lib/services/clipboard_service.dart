@@ -44,9 +44,10 @@ class ClipboardService {
 
       _lastClipboardContent = content;
 
-      // Only process valid URLs
-      if (UrlUtils.isValidUrl(content)) {
-        onNewUrl(content);
+      // Extract the first valid clean URL
+      final extractedUrl = UrlUtils.extractFirstValidUrl(content);
+      if (extractedUrl != null) {
+        onNewUrl(extractedUrl);
       }
     } catch (_) {
       // Clipboard access may fail silently
