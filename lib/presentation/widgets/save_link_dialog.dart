@@ -181,8 +181,11 @@ class _SaveLinkDialogState extends ConsumerState<SaveLinkDialog> {
       final folderNotifier = ref.read(folderListProvider.notifier);
       final linkNotifier = ref.read(linkListProvider.notifier);
 
-      // Check for duplicate
-      if (linkNotifier.isDuplicate(widget.url)) {
+      final linkRepo = ref.read(linkRepositoryProvider);
+      final existing = linkRepo.findByUrl(widget.url);
+
+      // Check for duplicate (already fully saved)
+      if (existing != null && !existing.isFromHistory) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('This link is already saved')),
@@ -215,9 +218,6 @@ class _SaveLinkDialogState extends ConsumerState<SaveLinkDialog> {
       }
 
       // Create the link
-      final linkRepo = ref.read(linkRepositoryProvider);
-      final existing = linkRepo.findByUrl(widget.url);
-
       if (existing != null) {
         // It was auto-saved as history, upgrade to a fully saved item
         final updated = existing.copyWith(

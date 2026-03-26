@@ -218,8 +218,11 @@ class _ShareSaveScreenState extends ConsumerState<ShareSaveScreen> {
       final folderNotifier = ref.read(folderListProvider.notifier);
       final linkNotifier = ref.read(linkListProvider.notifier);
 
-      // Check for duplicate
-      if (linkNotifier.isDuplicate(widget.url)) {
+      final linkRepo = ref.read(linkRepositoryProvider);
+      final existing = linkRepo.findByUrl(widget.url);
+
+      // Check for duplicate (already fully saved)
+      if (existing != null && !existing.isFromHistory) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('This link is already saved')),
@@ -253,23 +256,34 @@ class _ShareSaveScreenState extends ConsumerState<ShareSaveScreen> {
         }
       }
 
-      // Create the link
+      // Create or update the link
       final note = _noteController.text.trim().isEmpty
           ? UrlUtils.generateAutoNote(widget.url)
           : _noteController.text.trim();
 
-      final link = LinkModel(
-        id: const Uuid().v4(),
-        url: widget.url,
-        note: note,
-        category: _category.category,
-        domain: _domain,
-        folderId: folderId,
-        createdAt: DateTime.now(),
-        subCategory: _category.subCategory,
-      );
-
-      await linkNotifier.addLink(link);
+      if (existing != null) {
+        final updated = existing.copyWith(
+          note: note,
+          category: _category.category,
+          domain: _domain,
+          folderId: folderId,
+          subCategory: _category.subCategory,
+          isFromHistory: false,
+        );
+        await linkNotifier.updateLink(updated);
+      } else {
+        final link = LinkModel(
+          id: const Uuid().v4(),
+          url: widget.url,
+          note: note,
+          category: _category.category,
+          domain: _domain,
+          folderId: folderId,
+          createdAt: DateTime.now(),
+          subCategory: _category.subCategory,
+        );
+        await linkNotifier.addLink(link);
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
