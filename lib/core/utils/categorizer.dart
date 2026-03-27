@@ -5,16 +5,21 @@ import 'url_utils.dart';
 class CategoryResult {
   final String category;
   final String subCategory;
+  final String tertiaryCategory;
 
   const CategoryResult({
     required this.category,
     this.subCategory = '',
+    this.tertiaryCategory = '',
   });
 
   @override
-  String toString() => subCategory.isNotEmpty
-      ? '$category / $subCategory'
-      : category;
+  String toString() {
+    if (tertiaryCategory.isNotEmpty) {
+      return '$category / $subCategory / $tertiaryCategory';
+    }
+    return subCategory.isNotEmpty ? '$category / $subCategory' : category;
+  }
 }
 
 /// Categorizes links based on domain name and URL keywords.
@@ -174,8 +179,6 @@ class LinkCategorizer {
     // 1) Check domain mapping
     String category = AppConstants.categoryGeneral;
     for (final entry in _domainCategoryMap.entries) {
-      // For short keys (like 'x'), require exact short domain match
-      // to avoid false positives (e.g., 'x' matching '.xyz')
       if (entry.key.length <= 2) {
         if (shortDomain == entry.key) {
           category = entry.value;
@@ -189,12 +192,12 @@ class LinkCategorizer {
     }
 
     // 2) Detect product sub-category from URL keywords
-    String subCategory = '';
+    String itemType = '';
     if (category == AppConstants.categoryShopping ||
         category == AppConstants.categoryGeneral) {
       for (final entry in _productSubCategories.entries) {
         if (fullUrl.contains(entry.key)) {
-          subCategory = entry.value;
+          itemType = entry.value;
           if (category == AppConstants.categoryGeneral) {
             category = AppConstants.categoryShopping;
           }
@@ -203,9 +206,34 @@ class LinkCategorizer {
       }
     }
 
+    String subCategory = '';
+    String tertiaryCategory = '';
+
+    if (category == AppConstants.categoryShopping) {
+      // For shopping, subCategory is the platform (e.g. Myntra), tertiary is the item type (e.g. Shoes)
+      String vendor = '';
+      for (final entry in _domainCategoryMap.entries) {
+        if (entry.value == AppConstants.categoryShopping && 
+            (shortDomain.contains(entry.key) || fullDomain.contains(entry.key))) {
+          vendor = entry.key[0].toUpperCase() + entry.key.substring(1);
+          break;
+        }
+      }
+      if (vendor.isEmpty && shortDomain.isNotEmpty) {
+        vendor = shortDomain[0].toUpperCase() + shortDomain.substring(1);
+      }
+      
+      subCategory = vendor;
+      tertiaryCategory = itemType;
+    } else {
+      // For non-shopping, keep the old behavior
+      subCategory = itemType;
+    }
+
     return CategoryResult(
       category: category,
       subCategory: subCategory,
+      tertiaryCategory: tertiaryCategory,
     );
   }
 

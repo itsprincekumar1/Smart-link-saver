@@ -78,6 +78,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final category = LinkCategorizer.categorize(url);
     
     // Auto-save silently to history so it isn't lost if the user dismisses the popup
+    final combinedSubCategory = category.tertiaryCategory.isNotEmpty 
+        ? '${category.subCategory} / ${category.tertiaryCategory}' 
+        : category.subCategory;
+
     final newHistoryLink = LinkModel(
       id: const Uuid().v4(),
       url: url,
@@ -86,7 +90,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       domain: UrlUtils.extractDomain(url),
       createdAt: DateTime.now(),
       isFromHistory: true,
-      subCategory: category.subCategory,
+      subCategory: combinedSubCategory,
     );
     linkNotifier.addLink(newHistoryLink);
 

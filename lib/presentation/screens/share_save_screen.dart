@@ -253,8 +253,21 @@ class _ShareSaveScreenState extends ConsumerState<ShareSaveScreen> {
             parentId: folderId,
           );
           folderId = subFolder.id;
+
+          // Create tertiary folder if applicable
+          if (_category.tertiaryCategory.isNotEmpty) {
+            final tertiaryFolder = await folderNotifier.getOrCreate(
+              _category.tertiaryCategory,
+              parentId: folderId,
+            );
+            folderId = tertiaryFolder.id;
+          }
         }
       }
+
+      final combinedSubCategory = _category.tertiaryCategory.isNotEmpty 
+          ? '${_category.subCategory} / ${_category.tertiaryCategory}' 
+          : _category.subCategory;
 
       // Create or update the link
       final note = _noteController.text.trim().isEmpty
@@ -267,7 +280,7 @@ class _ShareSaveScreenState extends ConsumerState<ShareSaveScreen> {
           category: _category.category,
           domain: _domain,
           folderId: folderId,
-          subCategory: _category.subCategory,
+          subCategory: combinedSubCategory,
           isFromHistory: false,
         );
         await linkNotifier.updateLink(updated);
@@ -280,7 +293,7 @@ class _ShareSaveScreenState extends ConsumerState<ShareSaveScreen> {
           domain: _domain,
           folderId: folderId,
           createdAt: DateTime.now(),
-          subCategory: _category.subCategory,
+          subCategory: combinedSubCategory,
         );
         await linkNotifier.addLink(link);
       }

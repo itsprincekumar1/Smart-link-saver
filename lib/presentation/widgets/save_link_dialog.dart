@@ -214,8 +214,21 @@ class _SaveLinkDialogState extends ConsumerState<SaveLinkDialog> {
             parentId: folderId,
           );
           folderId = subFolder.id;
+
+          // Create tertiary folder if applicable
+          if (_category.tertiaryCategory.isNotEmpty) {
+            final tertiaryFolder = await folderNotifier.getOrCreate(
+              _category.tertiaryCategory,
+              parentId: folderId,
+            );
+            folderId = tertiaryFolder.id;
+          }
         }
       }
+
+      final combinedSubCategory = _category.tertiaryCategory.isNotEmpty 
+          ? '${_category.subCategory} / ${_category.tertiaryCategory}' 
+          : _category.subCategory;
 
       // Create the link
       if (existing != null) {
@@ -223,7 +236,7 @@ class _SaveLinkDialogState extends ConsumerState<SaveLinkDialog> {
         final updated = existing.copyWith(
           note: _noteController.text.trim(),
           category: _category.category,
-          subCategory: _category.subCategory,
+          subCategory: combinedSubCategory,
           folderId: folderId,
           isFromHistory: false,
         );
@@ -238,7 +251,7 @@ class _SaveLinkDialogState extends ConsumerState<SaveLinkDialog> {
           domain: _domain,
           folderId: folderId,
           createdAt: DateTime.now(),
-          subCategory: _category.subCategory,
+          subCategory: combinedSubCategory,
           isFromHistory: false,
         );
         linkNotifier.addLink(newLink);
