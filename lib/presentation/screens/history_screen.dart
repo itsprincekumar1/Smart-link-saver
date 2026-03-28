@@ -19,9 +19,9 @@ class HistoryScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('History'),
         actions: [
-          if (historyLinks.isNotEmpty)
+          if (historyLinks.any((l) => l.isFromHistory))
             IconButton(
-              tooltip: 'Clear History',
+              tooltip: 'Clear Unsaved History',
               icon: const Icon(Icons.delete_sweep_rounded),
               onPressed: () => _clearHistory(context, ref),
             ),
