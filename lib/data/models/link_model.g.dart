@@ -27,13 +27,14 @@ class LinkModelAdapter extends TypeAdapter<LinkModel> {
       isFromHistory: fields[7] as bool,
       subCategory: fields[8] as String,
       imageUrl: fields[9] as String?,
+      isVisibleInHistory: fields[10] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, LinkModel obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -53,7 +54,9 @@ class LinkModelAdapter extends TypeAdapter<LinkModel> {
       ..writeByte(8)
       ..write(obj.subCategory)
       ..writeByte(9)
-      ..write(obj.imageUrl);
+      ..write(obj.imageUrl)
+      ..writeByte(10)
+      ..write(obj.isVisibleInHistory);
   }
 
   @override

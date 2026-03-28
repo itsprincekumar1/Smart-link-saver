@@ -115,7 +115,10 @@ class LinkTile extends ConsumerWidget {
                       const SizedBox(height: 6),
 
                       // Category & timestamp
-                      Row(
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -135,7 +138,6 @@ class LinkTile extends ConsumerWidget {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
                           // Folder / Unsaved Tag
                           Builder(builder: (context) {
                             String tagLabel = 'Unsaved';
@@ -170,19 +172,22 @@ class LinkTile extends ConsumerWidget {
                                     color: tagColor,
                                   ),
                                   const SizedBox(width: 4),
-                                  Text(
-                                    tagLabel,
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w600,
-                                      color: tagColor,
+                                  Flexible(
+                                    child: Text(
+                                      tagLabel,
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                        color: tagColor,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ],
                               ),
                             );
                           }),
-                          const SizedBox(width: 8),
                           Text(
                             _formatDate(link.createdAt),
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(

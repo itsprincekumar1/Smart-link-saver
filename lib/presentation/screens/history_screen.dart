@@ -19,9 +19,9 @@ class HistoryScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('History'),
         actions: [
-          if (historyLinks.any((l) => l.isFromHistory))
+          if (historyLinks.isNotEmpty)
             IconButton(
-              tooltip: 'Clear Unsaved History',
+              tooltip: 'Clear History',
               icon: const Icon(Icons.delete_sweep_rounded),
               onPressed: () => _clearHistory(context, ref),
             ),
@@ -74,11 +74,20 @@ class HistoryScreen extends ConsumerWidget {
   }
 
   Future<void> _clearHistory(BuildContext context, WidgetRef ref) async {
+    final historyLinks = ref.read(allLinksChronologicalProvider);
+
+    if (historyLinks.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No links in history to clear.')),
+      );
+      return;
+    }
+
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Clear Unsaved History'),
-        content: const Text('Delete all unsaved links? Foldered links will be kept safe.'),
+        title: const Text('Clear History'),
+        content: const Text('Are you sure you want to clear your link history? Links saved to folders will be kept safe.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),

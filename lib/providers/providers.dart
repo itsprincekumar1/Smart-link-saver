@@ -164,7 +164,7 @@ final linkListProvider =
 final allLinksChronologicalProvider = Provider<List<LinkModel>>((ref) {
   ref.watch(linkListProvider); // Reactive
   final repo = ref.watch(linkRepositoryProvider);
-  return repo.getAllLinks();
+  return repo.getAllLinks().where((l) => l.isVisibleInHistory).toList();
 });
 
 /// Provider for links in a specific folder.

@@ -35,6 +35,9 @@ class LinkModel extends HiveObject {
   @HiveField(9)
   String? imageUrl;
 
+  @HiveField(10)
+  bool isVisibleInHistory;
+
   LinkModel({
     required this.id,
     required this.url,
@@ -46,6 +49,7 @@ class LinkModel extends HiveObject {
     this.isFromHistory = false,
     this.subCategory = '',
     this.imageUrl,
+    this.isVisibleInHistory = true,
   });
 
   /// Creates a copy with optional field overrides.
@@ -60,6 +64,7 @@ class LinkModel extends HiveObject {
     bool? isFromHistory,
     String? subCategory,
     String? imageUrl,
+    bool? isVisibleInHistory,
   }) {
     return LinkModel(
       id: id ?? this.id,
@@ -72,6 +77,7 @@ class LinkModel extends HiveObject {
       isFromHistory: isFromHistory ?? this.isFromHistory,
       subCategory: subCategory ?? this.subCategory,
       imageUrl: imageUrl ?? this.imageUrl,
+      isVisibleInHistory: isVisibleInHistory ?? this.isVisibleInHistory,
     );
   }
 
@@ -87,6 +93,7 @@ class LinkModel extends HiveObject {
         'isFromHistory': isFromHistory,
         'subCategory': subCategory,
         'imageUrl': imageUrl,
+        'isVisibleInHistory': isVisibleInHistory,
       };
 
   /// Deserializes from JSON map.
@@ -101,5 +108,6 @@ class LinkModel extends HiveObject {
         isFromHistory: json['isFromHistory'] as bool? ?? false,
         subCategory: json['subCategory'] as String? ?? '',
         imageUrl: json['imageUrl'] as String?,
+        isVisibleInHistory: json['isVisibleInHistory'] as bool? ?? true,
       );
 }

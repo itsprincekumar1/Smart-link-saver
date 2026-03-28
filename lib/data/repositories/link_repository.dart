@@ -100,11 +100,15 @@ class LinkRepository {
   /// Clears all history links.
   Future<void> clearHistory() async {
     final historyLinks = _box.values
-        .where((link) => link.isFromHistory)
-        .map((link) => link.id)
+        .where((link) => link.isVisibleInHistory)
         .toList();
-    for (final key in historyLinks) {
-      await _box.delete(key);
+    for (final link in historyLinks) {
+      if (link.folderId == null) {
+        await _box.delete(link.id);
+      } else {
+        final updated = link.copyWith(isVisibleInHistory: false);
+        await _box.put(link.id, updated);
+      }
     }
   }
 
