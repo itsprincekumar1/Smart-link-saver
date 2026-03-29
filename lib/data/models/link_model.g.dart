@@ -27,7 +27,7 @@ class LinkModelAdapter extends TypeAdapter<LinkModel> {
       isFromHistory: fields[7] as bool,
       subCategory: fields[8] as String,
       imageUrl: fields[9] as String?,
-      isVisibleInHistory: fields[10] as bool,
+      isVisibleInHistory: fields[10] == null ? true : fields[10] as bool,
     );
   }
 

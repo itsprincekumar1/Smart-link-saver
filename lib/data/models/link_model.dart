@@ -35,7 +35,7 @@ class LinkModel extends HiveObject {
   @HiveField(9)
   String? imageUrl;
 
-  @HiveField(10)
+  @HiveField(10, defaultValue: true)
   bool isVisibleInHistory;
 
   LinkModel({
