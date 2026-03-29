@@ -5,6 +5,7 @@ import '../../core/utils/categorizer.dart';
 import '../../core/utils/url_utils.dart';
 import '../../data/models/link_model.dart';
 import '../../providers/providers.dart';
+import 'create_folder_dialog.dart';
 
 /// Bottom sheet dialog shown when a new link is detected.
 /// Allows the user to add a note, pick a folder, and save.
@@ -121,25 +122,37 @@ class _SaveLinkDialogState extends ConsumerState<SaveLinkDialog> {
           const SizedBox(height: 16),
 
           // Folder selector
-          DropdownButtonFormField<String>(
-            initialValue: _selectedFolderId ?? '_auto_',
-            decoration: const InputDecoration(
-              labelText: 'Save to folder',
-              prefixIcon: Icon(Icons.folder_rounded),
-            ),
-            items: [
-              const DropdownMenuItem(
-                value: '_auto_',
-                child: Text('Auto-create folder'),
+          Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  initialValue: _selectedFolderId ?? '_auto_',
+                  decoration: const InputDecoration(
+                    labelText: 'Save to folder',
+                    prefixIcon: Icon(Icons.folder_rounded),
+                  ),
+                  items: [
+                    const DropdownMenuItem(
+                      value: '_auto_',
+                      child: Text('Auto-create folder'),
+                    ),
+                    ...allFolderEntries.map((entry) => DropdownMenuItem(
+                          value: entry.folder.id,
+                          child: Text('${'  ' * entry.depth}${entry.folder.name}'),
+                        )),
+                  ],
+                  onChanged: (value) {
+                    setState(() => _selectedFolderId = value == '_auto_' ? null : value);
+                  },
+                ),
               ),
-              ...allFolderEntries.map((entry) => DropdownMenuItem(
-                    value: entry.folder.id,
-                    child: Text('${'  ' * entry.depth}${entry.folder.name}'),
-                  )),
+              const SizedBox(width: 8),
+              IconButton.filledTonal(
+                tooltip: 'Create New Folder',
+                icon: const Icon(Icons.create_new_folder_rounded),
+                onPressed: _createNewFolder,
+              ),
             ],
-            onChanged: (value) {
-              setState(() => _selectedFolderId = value == '_auto_' ? null : value);
-            },
           ),
           const SizedBox(height: 20),
 
@@ -172,6 +185,22 @@ class _SaveLinkDialogState extends ConsumerState<SaveLinkDialog> {
         ],
       ),
     );
+  }
+
+  Future<void> _createNewFolder() async {
+    final name = await showDialog<String>(
+      context: context,
+      builder: (_) => const CreateFolderDialog(),
+    );
+    if (name != null && name.trim().isNotEmpty) {
+      final folderNotifier = ref.read(folderListProvider.notifier);
+      final newFolder = await folderNotifier.createFolder(name.trim());
+      if (mounted) {
+        setState(() {
+          _selectedFolderId = newFolder.id;
+        });
+      }
+    }
   }
 
   Future<void> _saveLink() async {
